@@ -890,6 +890,8 @@ var _ = Describe("Post-Check testing for cluster creation",
 				By("Check the sts cluster created with IAM roles")
 				if profile.ClusterConfig.HCP {
 					Expect(len(clusterDescription.OperatorIAMRoles)).To(Equal(8))
+				} else if profile.ClusterConfig.FedRAMP {
+					Expect(len(clusterDescription.OperatorIAMRoles)).To(Equal(7))
 				} else {
 					Expect(len(clusterDescription.OperatorIAMRoles)).To(Equal(6))
 				}

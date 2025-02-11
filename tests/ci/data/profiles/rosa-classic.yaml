@@ -101,6 +101,7 @@ profiles:
     name_length: 15
     domain_prefix_enabled: false
     additional_sg_number: 0
+    fedramp: true
   account-role:
     path: ""
     permission_boundary: ""
