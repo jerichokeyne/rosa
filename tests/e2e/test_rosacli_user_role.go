@@ -159,7 +159,7 @@ var _ = Describe("Edit user role", labels.Feature.UserRole, func() {
 		})
 
 	It("can create/link/unlink/delete user-role in auto mode - [id:52419]",
-		labels.High, labels.Runtime.OCMResources,
+		labels.High, labels.Runtime.OCMResources, labels.FedRAMP,
 		func() {
 			var (
 				userRolePrefix     string

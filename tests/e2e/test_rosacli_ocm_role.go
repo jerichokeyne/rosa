@@ -54,7 +54,7 @@ var _ = Describe("Edit ocm role", labels.Feature.OCMRole,
 		})
 
 		It("can create/delete/unlink/link ocm-roles in auto mode - [id:46187]",
-			labels.High, labels.Runtime.OCMResources,
+			labels.High, labels.Runtime.OCMResources, labels.FedRAMP,
 			func() {
 				var (
 					ocmrolePrefix                                 string
