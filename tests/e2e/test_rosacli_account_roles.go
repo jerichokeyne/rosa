@@ -52,7 +52,7 @@ var _ = Describe("Edit account roles", labels.Feature.AccountRoles, func() {
 	})
 
 	It("can create/list/delete account-roles - [id:43070]",
-		labels.High, labels.Runtime.OCMResources, labels.FedRAMP,
+		labels.High, labels.Runtime.OCMResources,
 		func() {
 			defer func() {
 				By("Cleanup created account-roles in high level of the test case")
@@ -290,7 +290,7 @@ var _ = Describe("Edit account roles", labels.Feature.AccountRoles, func() {
 		})
 
 	It("can delete account-roles with --hosted-cp and --classic - [id:62083]",
-		labels.High, labels.Runtime.OCMResources, labels.FedRAMP,
+		labels.High, labels.Runtime.OCMResources,
 		func() {
 			defer func() {
 				By("Cleanup created account-roles in high level of the test case")
