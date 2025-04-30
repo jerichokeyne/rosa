@@ -1175,13 +1175,13 @@ func run(cmd *cobra.Command, _ []string) {
 	// Billing Account
 	billingAccount := args.billingAccount
 	if isHostedCP {
-		isHcpBillingTechPreview, err := r.OCMClient.IsTechnologyPreview(ocm.HcpBillingAccount, time.Now())
+		_, err := r.OCMClient.IsTechnologyPreview(ocm.HcpBillingAccount, time.Now())
 		if err != nil {
 			r.Reporter.Errorf("%s", err)
 			os.Exit(1)
 		}
 
-		if !isHcpBillingTechPreview {
+		if false {
 
 			if billingAccount != "" && !ocm.IsValidAWSAccount(billingAccount) {
 				r.Reporter.Errorf("Provided billing account number %s is not valid. "+
@@ -2821,10 +2821,10 @@ func run(cmd *cobra.Command, _ []string) {
 		}
 	}
 
-	if cmd.Flags().Changed("fips") && isHostedCP {
-		r.Reporter.Errorf("FIPS support not available for Hosted Control Plane clusters")
-		os.Exit(1)
-	}
+	// if cmd.Flags().Changed("fips") && isHostedCP {
+	// 	r.Reporter.Errorf("FIPS support not available for Hosted Control Plane clusters")
+	// 	os.Exit(1)
+	// }
 	fips := args.fips || fedramp.Enabled()
 	if interactive.Enabled() && !fedramp.Enabled() && !isHostedCP {
 		fips, err = interactive.GetBool(interactive.Input{
