@@ -421,7 +421,7 @@ var _ = Describe("Validation testing",
 
 				By("not-existed policies arn when attach")
 				policyArnsWithNotExistedOne := []string{
-					"arn:aws:iam::123456789012:policy/ocmqe-arpolicy-rta-0",
+					"arn:aws-us-gov:iam::123456789012:policy/ocmqe-arpolicy-rta-0",
 					arbitraryPoliciesToClean[0],
 					arbitraryPoliciesToClean[1],
 				}

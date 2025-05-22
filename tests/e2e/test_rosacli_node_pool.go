@@ -1001,8 +1001,12 @@ var _ = Describe("Edit nodepool",
 
 				By("Get OCM Env")
 				if strings.Contains(ocmApi, "stage") {
-					OCMEnv = "staging"
-				} else if strings.Contains(ocmApi, "integration") {
+					if profile.ClusterConfig.FedRAMP {
+						OCMEnv = "stage"
+					} else {
+						OCMEnv = "staging"
+					}
+				} else if strings.Contains(ocmApi, "integration") || strings.Contains(ocmApi, "int") {
 					OCMEnv = "integration"
 				} else {
 					OCMEnv = "production"

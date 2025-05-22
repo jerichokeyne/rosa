@@ -578,7 +578,7 @@ var _ = Describe("Healthy check",
 					Expect(err).To(BeNil())
 					if isHosted {
 						clusterVersion := jsonData.DigString("openshift_version")
-						if clusterVersion >= "4.14" {
+						if clusterVersion >= "4.14" && !profile.ClusterConfig.FedRAMP {
 							Expect(jsonData.DigBool("multi_arch_enabled")).To(BeTrue())
 						} else {
 							Expect(jsonData.DigBool("multi_arch_enabled")).To(BeFalse())
@@ -949,14 +949,14 @@ var _ = Describe("Post-Check testing for cluster creation",
 					if len(attachedPolicies) > 1 {
 						managedPolicyFound := false
 						for _, policy := range attachedPolicies {
-							if strings.Contains(*policy.PolicyArn, "arn:aws:iam::aws") {
+							if strings.Contains(*policy.PolicyArn, "arn:aws-us-gov:iam::aws") {
 								managedPolicyFound = true
 								break
 							}
 						}
 						Expect(managedPolicyFound).To(BeTrue())
 					} else {
-						Expect(*attachedPolicies[0].PolicyArn).To(ContainSubstring("arn:aws:iam::aws"), operatorRoleName)
+						Expect(*attachedPolicies[0].PolicyArn).To(ContainSubstring("arn:aws-us-gov:iam::aws"), operatorRoleName)
 					}
 				}
 			})

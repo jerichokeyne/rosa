@@ -323,10 +323,10 @@ var _ = Describe("HCP cluster testing",
 				}
 				Expect(clusterDesc.Network).To(ContainElements(HaveKey("Type"), HaveKey("Service CIDR"), HaveKey("Machine CIDR"),
 					HaveKey("Pod CIDR"), HaveKey("Host Prefix"), HaveKeyWithValue("Subnets", MatchRegexp("^subnet-.{17}"))))
-				Expect(clusterDesc.STSRoleArn).To(MatchRegexp("arn:aws:iam::[0-9]{12}:role/.+-HCP-ROSA-Installer-Role"))
-				Expect(clusterDesc.SupportRoleARN).To(MatchRegexp("arn:aws:iam::[0-9]{12}:role/.+-HCP-ROSA-Support-Role"))
+				Expect(clusterDesc.STSRoleArn).To(MatchRegexp("arn:aws[-\\w]*:iam::[0-9]{12}:role/.+-HCP-ROSA-Installer-Role"))
+				Expect(clusterDesc.SupportRoleARN).To(MatchRegexp("arn:aws[-\\w]*:iam::[0-9]{12}:role/.+-HCP-ROSA-Support-Role"))
 				Expect(clusterDesc.InstanceIAMRoles[0]).To(HaveKeyWithValue("Worker",
-					MatchRegexp("arn:aws:iam::[0-9]{12}:role/.+-HCP-ROSA-Worker-Role")))
+					MatchRegexp("arn:aws[-\\w]*:iam::[0-9]{12}:role/.+-HCP-ROSA-Worker-Role")))
 
 				By("List Operator roles")
 				roles, err := ocmResourceService.ListOperatorRoles("--prefix", clusterConfig.Aws.Sts.OperatorRolesPrefix)
@@ -337,7 +337,7 @@ var _ = Describe("HCP cluster testing",
 					Expect(clusterDesc.OperatorIAMRoles).To(ContainElement(ContainSubstring(role.RoleName)))
 				}
 
-				Expect(clusterDesc.OperatorIAMRoles).To(HaveEach(MatchRegexp("arn:aws:iam::[0-9]{12}:role/.+")))
+				Expect(clusterDesc.OperatorIAMRoles).To(HaveEach(MatchRegexp("arn:aws[-\\w]*:iam::[0-9]{12}:role/.+")))
 				Expect(clusterDesc.State).To(Equal(constants.Ready))
 			})
 
