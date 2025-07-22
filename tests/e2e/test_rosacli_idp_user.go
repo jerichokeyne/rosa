@@ -179,7 +179,7 @@ var _ = Describe("Validate user", // TODO could be transformed as day1 negative
 		})
 
 		It("try to create cluster with invalid usernames, passwords or unsupported configurations - [id:66362]",
-			labels.Critical, labels.Runtime.Day2,
+			labels.Critical, labels.Runtime.Day2, labels.FedRAMP,
 			func() {
 				clusterID = "fake-cluster" // these tests do not create or use a real cluster so no need to address an existing one.
 

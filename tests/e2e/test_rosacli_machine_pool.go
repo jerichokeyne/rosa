@@ -138,6 +138,7 @@ var _ = Describe("Create machinepool",
 		It("can create machinepool with volume size set - [id:66872]",
 			labels.Runtime.Day2,
 			labels.Critical,
+			labels.FedRAMP,
 			func() {
 				mpID := helper.GenerateRandomName("mp-66872", 2)
 				expectedDiskSize := "186 GiB" // it is 200GB
@@ -212,6 +213,7 @@ var _ = Describe("Create machinepool",
 		It("List newly added instance-types - [id:73308]",
 			labels.Runtime.Day2,
 			labels.Medium,
+			labels.FedRAMP,
 			func() {
 				By("List the available instance-types and verify the presence of newly added instance-types")
 				newlyAddedTypes := []string{
@@ -245,6 +247,7 @@ var _ = Describe("Create machinepool",
 		It("can create spot machinepool - [id:43251]",
 			labels.Runtime.Day2,
 			labels.High,
+			labels.FedRAMP,
 			func() {
 				By("Create a spot machinepool on the cluster")
 				// nolint:goconst
@@ -316,6 +319,7 @@ var _ = Describe("Create machinepool",
 		It("validate inputs for create spot machinepool - [id:43252]",
 			labels.Runtime.Day2,
 			labels.Medium,
+			labels.FedRAMP,
 			func() {
 				By("Create a spot machinepool with negative price")
 				machinePoolName := "spotmp"
@@ -347,6 +351,7 @@ var _ = Describe("Create machinepool",
 		It("can create machinepool with tags - [id:73469]",
 			labels.Runtime.Day2,
 			labels.High,
+			labels.FedRAMP,
 			func() {
 				By("Check the help message of machinepool creation")
 				out, err := machinePoolService.CreateMachinePool(clusterID, "mp-73469", "-h")
@@ -407,7 +412,7 @@ var _ = Describe("Create machinepool",
 			})
 
 		It("can create machinepool with availibility zone - [id:52352]",
-			labels.Runtime.Day2, labels.High,
+			labels.Runtime.Day2, labels.High, labels.FedRAMP,
 			func() {
 				By("Check the help message of create machinepool")
 				output, err := machinePoolService.CreateMachinePool(clusterID, "help", "-h")
@@ -470,7 +475,7 @@ var _ = Describe("Create machinepool",
 			})
 
 		It("can create machinepool with another subnet - [id:52764]",
-			labels.Runtime.Day2, labels.High,
+			labels.Runtime.Day2, labels.High, labels.FedRAMP,
 			func() {
 				By("Check if cluster is BYOVPC cluster")
 				if clusterConfig.Subnets == nil {
@@ -561,7 +566,7 @@ var _ = Describe("Create machinepool",
 			})
 
 		It("can create machinepool with additional security groups - [id:68173]",
-			labels.Runtime.Day2, labels.High,
+			labels.Runtime.Day2, labels.High, labels.FedRAMP,
 			func() {
 				By("Load the vpc client of the machinepool")
 				mps, err := rosaClient.MachinePool.ListAndReflectMachinePools(clusterID)
@@ -613,7 +618,7 @@ var _ = Describe("Create machinepool",
 				Expect(mpDescription.SecurityGroupIDs).To(BeEmpty())
 			})
 
-		It("can create local zone machinepool - [id:55979]", labels.Runtime.Day2, labels.High,
+		It("can create local zone machinepool - [id:55979]", labels.Runtime.Day2, labels.High, labels.FedRAMP,
 			func() {
 				By("Check if cluster is BYOVPC cluster")
 				if clusterConfig.Subnets == nil {
@@ -716,7 +721,7 @@ var _ = Describe("Create machinepool",
 			})
 		Context("validation", func() {
 			It("will validate name/replicas/labels/taints  - [id:67057]",
-				labels.Runtime.Day2, labels.Medium,
+				labels.Runtime.Day2, labels.Medium, labels.FedRAMP,
 				func() {
 					mpName := "mp-67057"
 
@@ -769,7 +774,7 @@ var _ = Describe("Create machinepool",
 				})
 
 			It("will validate machine pool creation - [id:38775]",
-				labels.Runtime.Day2, labels.Medium,
+				labels.Runtime.Day2, labels.Medium, labels.FedRAMP,
 				func() {
 					mpName := "mp-38775"
 					fakeClusterName := "fake_38775"
@@ -849,7 +854,7 @@ var _ = Describe("Create machinepool",
 				})
 
 			It("will validate machine pool deletion - [id: 38783]",
-				labels.Runtime.Day2, labels.Medium,
+				labels.Runtime.Day2, labels.Medium, labels.FedRAMP,
 				func() {
 					By("Delete machine pool with no flags")
 					output, err := rosaClient.MachinePool.DeleteMachinePool("", "")
@@ -876,7 +881,7 @@ var _ = Describe("Create machinepool",
 				})
 
 			It("will validate root volume size - [id:66874]",
-				labels.Runtime.Day2, labels.Medium,
+				labels.Runtime.Day2, labels.Medium, labels.FedRAMP,
 				func() {
 					mpName := "mp-66874"
 					By("Create with too small disk size will fail")
@@ -1180,6 +1185,7 @@ var _ = Describe("Edit machinepool",
 		It("can edit the default machinepool labels and taints - [id:57102]",
 			labels.High,
 			labels.Runtime.Day2,
+			labels.FedRAMP,
 			func() {
 				By("List the machinepools of the cluster")
 				mpList, err := rosaClient.MachinePool.ListAndReflectMachinePools(clusterID)
@@ -1321,7 +1327,7 @@ var _ = Describe("Edit machinepool",
 				verifyClusterComputeNodesMatched(clusterID)
 			})
 
-		It("enable/disable/update autoscaling will work well - [id:38194]", labels.Runtime.Day2, labels.High,
+		It("enable/disable/update autoscaling will work well - [id:38194]", labels.Runtime.Day2, labels.High, labels.FedRAMP,
 			func() {
 				By("Record the original info of default worker pool")
 				mpDescription, err := machinePoolService.
@@ -1370,7 +1376,7 @@ var _ = Describe("Edit machinepool",
 				Expect(mpDescription.Replicas).To(Equal("3-12"))
 			})
 
-		It("will validate labels and taints for default worker pool - [id:57105]", labels.Runtime.Day2, labels.Medium,
+		It("will validate labels and taints for default worker pool - [id:57105]", labels.Runtime.Day2, labels.Medium, labels.FedRAMP,
 			func() {
 				By("Record original labels and define the recovery steps")
 				mpDescription, err := machinePoolService.
@@ -1480,7 +1486,7 @@ var _ = Describe("Upgrade machinepool",
 		})
 
 		It("should not be supported on Classic clusters - [id:76200]",
-			labels.Medium, labels.Runtime.Day2,
+			labels.Medium, labels.Runtime.Day2, labels.FedRAMP,
 			func() {
 				By("Try to list upgrades")
 				_, err := machinePoolUpgradeService.ListUpgrades(clusterID, constants.DefaultClassicWorkerPool)

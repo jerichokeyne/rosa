@@ -62,7 +62,7 @@ var _ = Describe("Autoscaler", labels.Feature.Autoscaler, func() {
 
 		})
 		It("Validation info/error about the MaxNodeLimit and MaxNodeLimitation - [id:79848]",
-			labels.Critical, labels.Runtime.Day2,
+			labels.Critical, labels.Runtime.Day2, labels.FedRAMP,
 			func() {
 				var (
 					minReplicas     string
@@ -163,7 +163,7 @@ var _ = Describe("Autoscaler", labels.Feature.Autoscaler, func() {
 			})
 
 		It("Edit/describe hosted-cp cluster autoscaler and validations for autoscaler operations - [id:79846]",
-			labels.Critical, labels.Runtime.Day2,
+			labels.Critical, labels.Runtime.Day2, labels.FedRAMP,
 			func() {
 				By("Check Validation for max-node-provision-time")
 				mnptValidationMap := map[string]string{
@@ -313,7 +313,7 @@ var _ = Describe("Autoscaler", labels.Feature.Autoscaler, func() {
 		})
 
 		It("create/describe/edit/delete cluster autoscaler by rosacli - [id:67275]",
-			labels.Critical, labels.Runtime.Day2,
+			labels.Critical, labels.Runtime.Day2, labels.FedRAMP,
 			func() {
 				By("Retrieve help for create/list/describe/delete autoscaler")
 				_, err := rosaClient.AutoScaler.CreateAutoScaler(clusterID, "-h")
@@ -510,7 +510,7 @@ var _ = Describe("Autoscaler", labels.Feature.Autoscaler, func() {
 	Describe("validation testing", func() {
 
 		Context("create/describe/edit/delete autoscaler - [id:67348]",
-			labels.Medium, labels.Runtime.Day2,
+			labels.Medium, labels.Runtime.Day2, labels.FedRAMP,
 			func() {
 
 				It("for hcp cluster",
@@ -906,7 +906,7 @@ var _ = Describe("Autoscaler", labels.Feature.Autoscaler, func() {
 			})
 
 		It("create/describe/edit/delete autoscaler for autoscaler enabled cluster - [id:74468]",
-			labels.Medium, labels.Runtime.Day1Post,
+			labels.Medium, labels.Runtime.Day1Post, labels.FedRAMP,
 			func() {
 				if hostedCluster {
 					SkipNotClassic()
