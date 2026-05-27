@@ -100,6 +100,7 @@ type Resources struct {
 	VpcID                        string                `json:"vpc_id,omitempty"`
 	HCPRoute53ShareRole          string                `json:"hcp_route53_share_role,omitempty"`
 	HCPVPCEndpointShareRole      string                `json:"hcp_vpc_endpoint_share_role,omitempty"`
+	AutoNodeRoleArn              string                `json:"auto_node_role_arn,omitempty"`
 	ProxyInstanceID              string                `json:"proxy_instance_id,omitempty"`
 	LogForwardConigs             *LogForwardConigs     `json:"lfw_configs,omitempty" yaml:"lfw_configs,omitempty"`
 	OCMRoleArn                   string                `json:"ocm_role_arn,omitempty"`

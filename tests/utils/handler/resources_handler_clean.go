@@ -202,6 +202,15 @@ func (rh *resourcesHandler) DeleteAdditionalPrincipalsRole(managedPolicy bool) e
 	return err
 }
 
+func (rh *resourcesHandler) DeleteAutoNodeRole() error {
+	awsClient, err := rh.GetAWSClient(false)
+	if err != nil {
+		return err
+	}
+	roleName := rh.resources.AutoNodeRoleArn[strings.LastIndex(rh.resources.AutoNodeRoleArn, "/")+1:]
+	return awsClient.DeleteRoleAndPolicy(roleName, false)
+}
+
 func (rh *resourcesHandler) DeleteResourceShare() error {
 	awsClient, err := rh.GetAWSClient(true)
 	if err != nil {

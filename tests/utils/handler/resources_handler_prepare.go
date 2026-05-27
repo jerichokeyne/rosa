@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -1106,6 +1107,57 @@ func (rh *resourcesHandler) PrepareAdditionalPrincipalsRole(roleName string, ins
 			additionalPrincipalRoleArn, err.Error())
 	}
 	return additionalPrincipalRoleArn, err
+}
+
+func (rh *resourcesHandler) PrepareAutoNodeRole(roleName string, oidcIssuerURL string) (string, error) {
+	oidcIssuerURL = strings.TrimPrefix(oidcIssuerURL, "https://")
+	oidcIssuerURL = strings.TrimPrefix(oidcIssuerURL, "http://")
+	log.Logger.Infof("Preparing autonode role with name %s and oidcIssuerURL %s", roleName, oidcIssuerURL)
+
+	awsClient, err := rh.GetAWSClient(false)
+	if err != nil {
+		return "", err
+	}
+
+	trustPolicy := map[string]any{
+		"Version": "2012-10-17",
+		"Statement": map[string]any{
+			"Effect": "Allow",
+			"Principal": map[string]any{
+				"Federated": fmt.Sprintf("arn:aws:iam::%s:oidc-provider/%s", awsClient.AccountID, oidcIssuerURL),
+			},
+			"Action": "sts:AssumeRoleWithWebIdentity",
+			"Condition": map[string]any{
+				"StringEquals": map[string]any{
+					fmt.Sprintf("%s:sub", oidcIssuerURL): "system:serviceaccount:kube-system:karpenter",
+				},
+			},
+		},
+	}
+
+	trustPolicyJSON, err := json.Marshal(trustPolicy)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal autonode role trust policy: %v", err)
+	}
+
+	role, err := awsClient.CreateRole(
+		roleName,
+		string(trustPolicyJSON),
+		"",
+		make(map[string]string),
+		"/",
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to create autonode role: %v", err)
+	}
+
+	autoNodeRoleArn := aws.ToString(role.Arn)
+	err = rh.registerAutoNodeRoleArn(autoNodeRoleArn)
+	if err != nil {
+		return autoNodeRoleArn, err
+	}
+
+	return autoNodeRoleArn, nil
 }
 
 func (rh *resourcesHandler) PrepareDNSDomain(hostedcp bool) (string, error) {

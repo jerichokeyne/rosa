@@ -782,22 +782,30 @@ var _ = Describe("HCP cluster testing",
 		It("edit ROSA HCP with autonode configuration via rosa cli  - [id:84981]",
 			labels.High, labels.Runtime.Day2,
 			func() {
-				By("Get the installer role arn")
-				rosaClient.Runner.JsonFormat()
-				jsonOutput, err := clusterService.DescribeCluster(clusterID)
+				By("Check the help message of 'rosa edit cluster -h'")
+				helpOutput, err := clusterService.EditCluster("", "-h")
 				Expect(err).To(BeNil())
-				rosaClient.Runner.UnsetFormat()
-				jsonData := rosaClient.Parser.JsonData.Input(jsonOutput).Parse()
-				installRoleArn := jsonData.DigString("aws", "sts", "role_arn")
-				supportRoleArn := jsonData.DigString("aws", "sts", "support_role_arn")
+				Expect(helpOutput.String()).To(ContainSubstring("--autonode"))
+
+				clusterDetail, err := clusterService.GetJSONClusterDescription(clusterID)
+				Expect(err).To(BeNil())
+
+				By("Check if the cluster has autonode already enabled")
+				if clusterDetail.DigString("auto_node", "mode") == "enabled " {
+					SkipTestOnFeature("additional allowed principals")
+				}
+
+				By("Get cluster info and OIDC issuer URL")
+				installRoleArn := clusterDetail.DigString("aws", "sts", "role_arn")
+				oidcIssuerURL := clusterDetail.DigString("aws", "sts", "oidc_config", "issuer_url")
+				Expect(oidcIssuerURL).ToNot(BeEmpty(), "OIDC issuer URL is required")
 
 				By("Edit cluster autonode configuration with invalid flag value")
 				out, err := clusterService.EditCluster(
 					clusterID,
 					"--autonode=invalid",
 				)
-				Expect(err).To(HaveOccurred())
-				Expect(out.String()).To(ContainSubstring("only 'enabled' is supported"))
+				helper.ExpectErrorWithMessage(err, "only 'enabled' is supported")
 
 				By("Edit cluster autonode configuration with invalid arn format")
 				out, err = clusterService.EditCluster(
@@ -805,43 +813,58 @@ var _ = Describe("HCP cluster testing",
 					"--autonode=enabled",
 					"--autonode-iam-role-arn", "aaaaa",
 				)
-				Expect(err).To(HaveOccurred())
-				Expect(out.String()).To(ContainSubstring("invalid IAM role ARN format"))
+				helper.ExpectErrorWithMessage(err, "invalid IAM role ARN format")
 
 				By("Edit role arn when autonode configuration is not enabled")
 				out, err = clusterService.EditCluster(
 					clusterID,
 					"--autonode-iam-role-arn", installRoleArn,
 				)
-				Expect(err).To(HaveOccurred())
-				Expect(out.String()).To(ContainSubstring("cannot update IAM role ARN when AutoNode is not enabled"))
+				helper.ExpectErrorWithMessage(err, "cannot update IAM role ARN when AutoNode is not enabled")
+
+				By("Create autonode IAM roles")
+				resourcesHandler1, err := handler.NewTempResourcesHandler(rosaClient, profile.Region,
+					ciConfig.Test.GlobalENV.AWSCredetialsFile,
+					ciConfig.Test.GlobalENV.SVPC_CREDENTIALS_FILE)
+				Expect(err).ToNot(HaveOccurred())
+				resourcesHandler2, err := handler.NewTempResourcesHandler(rosaClient, profile.Region,
+					ciConfig.Test.GlobalENV.AWSCredetialsFile,
+					ciConfig.Test.GlobalENV.SVPC_CREDENTIALS_FILE)
+				Expect(err).ToNot(HaveOccurred())
+
+				autoNodeRoleArn1, err := resourcesHandler1.PrepareAutoNodeRole(helper.GenerateRandomName("ci84981", 10), oidcIssuerURL)
+				Expect(err).ToNot(HaveOccurred())
+				defer resourcesHandler1.DeleteAutoNodeRole()
+				autoNodeRoleArn2, err := resourcesHandler2.PrepareAutoNodeRole(helper.GenerateRandomName("ci84981", 10), oidcIssuerURL)
+				Expect(err).ToNot(HaveOccurred())
+				defer resourcesHandler2.DeleteAutoNodeRole()
 
 				By("Edit then describe cluster with autonode configuration")
 				out, err = clusterService.EditCluster(
 					clusterID,
 					"--autonode=enabled",
-					"--autonode-iam-role-arn", installRoleArn,
+					"--autonode-iam-role-arn", autoNodeRoleArn1,
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(out.String()).To(ContainSubstring("Updated cluster"))
 
-				jsonData, err = clusterService.GetJSONClusterDescription(clusterID)
+				clusterDetail, err = clusterService.GetJSONClusterDescription(clusterID)
 				Expect(err).To(BeNil())
-				Expect(jsonData.DigString("auto_node", "mode")).To(Equal("enabled"))
-				Expect(jsonData.DigString("aws", "auto_node", "role_arn")).To(Equal(installRoleArn))
+				Expect(clusterDetail.DigString("auto_node", "mode")).To(Equal("enabled"))
+				Expect(clusterDetail.DigString("aws", "auto_node", "role_arn")).To(Equal(autoNodeRoleArn1))
 
-				By("Update the autonode configuration on cluster")
+				By("Update the autonode role to a different role")
 				out, err = clusterService.EditCluster(
 					clusterID,
-					"--autonode-iam-role-arn", supportRoleArn,
+					"--autonode-iam-role-arn", autoNodeRoleArn2,
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(out.String()).To(ContainSubstring("Updated cluster"))
 
-				jsonData, err = clusterService.GetJSONClusterDescription(clusterID)
+				clusterDetail, err = clusterService.GetJSONClusterDescription(clusterID)
 				Expect(err).To(BeNil())
-				Expect(jsonData.DigString("auto_node", "mode")).To(Equal("enabled"))
-				Expect(jsonData.DigString("aws", "auto_node", "role_arn")).To(Equal(supportRoleArn))
+				Expect(clusterDetail.DigString("auto_node", "mode")).To(Equal("enabled"))
+				Expect(clusterDetail.DigString("aws", "auto_node", "role_arn")).To(Equal(autoNodeRoleArn2))
 			})
 	})
 var _ = Describe("hosted-cp cluster creation",

@@ -25,6 +25,7 @@ type ResourcesHandler interface {
 	GetAccountRolesPrefix() string
 	GetAdditionalPrincipals() string
 	GetAuditLogArn() string
+	GetAutoNodeRoleArn() string
 	GetDNSDomain() string
 	GetEtcdKMSKey() string
 	GetIngressHostedZoneID() string
@@ -74,6 +75,7 @@ type ResourcesHandler interface {
 	PrepareSharedVPCRole(sharedVPCRolePrefix string, installerRoleArn string,
 		ingressOperatorRoleArn string) (string, string, error)
 	PrepareAdditionalPrincipalsRole(roleName string, installerRoleArn string) (string, error)
+	PrepareAutoNodeRole(roleName string, oidcIssuerURL string) (string, error)
 	PrepareDNSDomain(hostedcp bool) (string, error)
 	PrepareHostedZone(hostedZoneName string, vpcID string, private bool) (string, error)
 	PrepareSubnetArns(subnetIDs string) ([]string, error)
@@ -86,6 +88,7 @@ type ResourcesHandler interface {
 	DeleteDNSDomain() error
 	DeleteSharedVPCRole(managedPolicy bool) error
 	DeleteAdditionalPrincipalsRole(managedPolicy bool) error
+	DeleteAutoNodeRole() error
 	DeleteResourceShare() error
 	DeleteOperatorRoles() error
 	DeleteOIDCConfig() error
@@ -297,6 +300,15 @@ func (rh *resourcesHandler) DestroyResources() (errors []error) {
 		}
 	}
 
+	// delete autonode role
+	if resources.AutoNodeRoleArn != "" {
+		log.Logger.Infof("Find prepared autonode role: %s", resources.AutoNodeRoleArn)
+		err = rh.DeleteAutoNodeRole()
+		success := destroyLog(err, "autonode role")
+		if success {
+			rh.registerAutoNodeRoleArn("")
+		}
+	}
 	// delete additional principal role
 	if resources.AdditionalPrincipals != "" {
 		log.Logger.Infof("Find prepared additional principal role: %s", resources.AdditionalPrincipals)
@@ -448,6 +460,10 @@ func (rh *resourcesHandler) GetAuditLogArn() string {
 	return rh.resources.AuditLogArn
 }
 
+func (rh *resourcesHandler) GetAutoNodeRoleArn() string {
+	return rh.resources.AutoNodeRoleArn
+}
+
 func (rh *resourcesHandler) GetDNSDomain() string {
 	return rh.resources.DNSDomain
 }
@@ -512,6 +528,11 @@ func (rh *resourcesHandler) registerAdditionalPrincipals(additionalPrincipals st
 		rh.resources.FromSharedAWSAccount = &FromSharedAWSAccount{}
 	}
 	rh.resources.FromSharedAWSAccount.AdditionalPrincipls = true
+	return rh.saveToFile()
+}
+
+func (rh *resourcesHandler) registerAutoNodeRoleArn(autoNodeRoleArn string) error {
+	rh.resources.AutoNodeRoleArn = autoNodeRoleArn
 	return rh.saveToFile()
 }
 
